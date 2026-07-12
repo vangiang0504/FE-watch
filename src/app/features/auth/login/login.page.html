@@ -1,0 +1,88 @@
+<main class="login-page">
+  <div class="ambient-glow glow-a"></div>
+  <div class="ambient-glow glow-b"></div>
+
+  <section class="glass-panel" aria-labelledby="login-title">
+    <div class="heading">
+      <p class="brand">HOROLOGUE</p>
+      <h1 id="login-title">Đăng nhập</h1>
+    </div>
+
+    <form [formGroup]="form" class="login-form" (ngSubmit)="submit()" novalidate>
+      <label>
+        <span>Email</span>
+        <input formControlName="email" type="email" autocomplete="email" placeholder="Nhập email của bạn" />
+        @if (hasError('email', 'required')) {
+          <small class="field-error">Vui lòng nhập email.</small>
+        } @else if (hasError('email', 'email')) {
+          <small class="field-error">Email không đúng định dạng.</small>
+        }
+      </label>
+
+      <label>
+        <span>Mật khẩu</span>
+        <span class="password-field">
+          <input
+            formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="current-password"
+            placeholder="Nhập mật khẩu"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+            [attr.title]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              @if (showPassword()) {
+                <path d="M3 3l18 18" />
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 8a8.5 8.5 0 0 1-2 3.7" />
+                <path d="M6.6 6.7C4.4 8.2 3 10.5 3 12c0 3 3.5 8 9 8a10.4 10.4 0 0 0 4.1-.8" />
+              } @else {
+                <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+                <circle cx="12" cy="12" r="3" />
+              }
+            </svg>
+          </button>
+        </span>
+        @if (hasError('password', 'required')) {
+          <small class="field-error">Vui lòng nhập mật khẩu.</small>
+        }
+      </label>
+
+      <div class="options">
+        <label class="remember">
+          <input formControlName="remember" type="checkbox" />
+          <span>Duy trì đăng nhập</span>
+        </label>
+        <a href="#">Quên mật khẩu?</a>
+      </div>
+
+      @if (message()) {
+        <p class="message" [class.error]="isError()">{{ message() }}</p>
+      }
+
+      <button type="submit" class="submit-button" [disabled]="form.invalid || loading()">
+        {{ loading() ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+        <span aria-hidden="true">→</span>
+      </button>
+    </form>
+
+    <div class="divider"><span></span><small>Hoặc</small><span></span></div>
+
+    <div class="socials">
+      <div #googleButton class="google-button-host" aria-label="Đăng nhập bằng Google"></div>
+      @if (googleLoading()) {
+        <p class="google-status">Đang xác thực Google...</p>
+      }
+    </div>
+
+    <p class="register-link">
+      Chưa có tài khoản?
+      <a routerLink="/register">Đăng ký ngay</a>
+    </p>
+  </section>
+</main>

@@ -1,0 +1,259 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #e4e2e4;
+  background: #131315;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 32px 20px;
+}
+
+.ambient-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 193, 118, 0.06) 0%, rgba(19, 19, 21, 0) 70%);
+  pointer-events: none;
+}
+
+.glow-a {
+  top: -180px;
+  left: -180px;
+}
+
+.glow-b {
+  right: -180px;
+  bottom: -180px;
+}
+
+.glass-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 560px);
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.heading {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.brand {
+  margin: 0;
+  color: #e9c176;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+h1 {
+  margin: 0;
+  color: #e4e2e4;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.login-form {
+  display: grid;
+  gap: 18px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: #c7c6ca;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #e4e2e4;
+  background: rgba(10, 10, 11, 0.6);
+  font: inherit;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+input:focus {
+  border-color: #c5a059;
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.14);
+}
+
+.password-field {
+  position: relative;
+  display: block;
+}
+
+.password-field input {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  color: #c7c6ca;
+  background: transparent;
+  cursor: pointer;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: #e9c176;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.field-error {
+  color: #ffb4ab;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.remember {
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  font-weight: 400;
+}
+
+.remember input {
+  min-height: 16px;
+  accent-color: #e9c176;
+}
+
+a {
+  color: #e9c176;
+  text-decoration: none;
+}
+
+.message {
+  margin: 0;
+  color: #e9c176;
+  font-size: 13px;
+}
+
+.message.error {
+  color: #ffb4ab;
+}
+
+.submit-button {
+  min-height: 48px;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.submit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  color: #0a0a0b;
+  background: #e9c176;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: box-shadow 160ms ease;
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.submit-button:not(:disabled):hover {
+  box-shadow: 0 0 18px rgba(233, 193, 118, 0.36);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: #919094;
+}
+
+.divider span {
+  height: 1px;
+  flex: 1;
+  background: rgba(145, 144, 148, 0.3);
+}
+
+.socials {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 10px;
+}
+
+.google-button-host {
+  min-height: 44px;
+}
+
+.google-status {
+  margin: 0;
+  color: #c7c6ca;
+  font-size: 12px;
+}
+
+.register-link {
+  margin: 24px 0 0;
+  text-align: center;
+  color: #c7c6ca;
+  font-size: 13px;
+}
+
+@media (min-width: 768px) {
+  .login-page {
+    padding: 60px;
+  }
+
+  .glass-panel {
+    padding: 44px;
+  }
+}

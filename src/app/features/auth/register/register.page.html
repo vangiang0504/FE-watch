@@ -1,0 +1,133 @@
+<main class="register-page">
+  <div class="ambient-glow"></div>
+
+  <section class="glass-panel" aria-labelledby="register-title">
+    <div class="heading">
+      <p class="brand">HOROLOGUE</p>
+      <h1 id="register-title">Tạo tài khoản</h1>
+    </div>
+
+    <form [formGroup]="form" class="register-form" (ngSubmit)="submit()" novalidate>
+      <label>
+        <span>Họ và tên</span>
+        <input formControlName="fullName" type="text" autocomplete="name" placeholder="Nguyễn Văn A" />
+      </label>
+
+      <label>
+        <span>Tên đăng nhập</span>
+        <input formControlName="username" type="text" autocomplete="username" placeholder="nguyenvana" />
+        @if (hasError('username', 'required')) {
+          <small class="field-error">Vui lòng nhập tên đăng nhập.</small>
+        }
+      </label>
+
+      <label>
+        <span>Email</span>
+        <input formControlName="email" type="email" autocomplete="email" placeholder="you@example.com" />
+        @if (hasError('email', 'required')) {
+          <small class="field-error">Vui lòng nhập email.</small>
+        } @else if (hasError('email', 'email')) {
+          <small class="field-error">Email không đúng định dạng.</small>
+        }
+      </label>
+
+      <label>
+        <span>Số điện thoại</span>
+        <input formControlName="phone" type="tel" autocomplete="tel" placeholder="0901234567" />
+      </label>
+
+      <label>
+        <span>Mật khẩu</span>
+        <span class="password-field">
+          <input
+            formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+            placeholder="Ít nhất 8 ký tự, có chữ và số"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+            [attr.title]="showPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              @if (showPassword()) {
+                <path d="M3 3l18 18" />
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 8a8.5 8.5 0 0 1-2 3.7" />
+                <path d="M6.6 6.7C4.4 8.2 3 10.5 3 12c0 3 3.5 8 9 8a10.4 10.4 0 0 0 4.1-.8" />
+              } @else {
+                <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+                <circle cx="12" cy="12" r="3" />
+              }
+            </svg>
+          </button>
+        </span>
+        @if (hasError('password', 'required')) {
+          <small class="field-error">Vui lòng nhập mật khẩu.</small>
+        } @else if (hasError('password', 'pattern')) {
+          <small class="field-error">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số.</small>
+        }
+      </label>
+
+      <label>
+        <span>Xác nhận mật khẩu</span>
+        <span class="password-field">
+          <input
+            formControlName="confirmPassword"
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
+            placeholder="Nhập lại mật khẩu"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="toggleConfirmPassword()"
+            [attr.aria-label]="showConfirmPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+            [attr.title]="showConfirmPassword() ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              @if (showConfirmPassword()) {
+                <path d="M3 3l18 18" />
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9 5 9 8a8.5 8.5 0 0 1-2 3.7" />
+                <path d="M6.6 6.7C4.4 8.2 3 10.5 3 12c0 3 3.5 8 9 8a10.4 10.4 0 0 0 4.1-.8" />
+              } @else {
+                <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+                <circle cx="12" cy="12" r="3" />
+              }
+            </svg>
+          </button>
+        </span>
+        @if (hasError('confirmPassword', 'required')) {
+          <small class="field-error">Vui lòng xác nhận mật khẩu.</small>
+        } @else if (passwordMismatch()) {
+          <small class="field-error">Mật khẩu xác nhận không khớp.</small>
+        }
+      </label>
+
+      <label class="terms">
+        <input formControlName="terms" type="checkbox" />
+        <span>Tôi đồng ý với Điều khoản & Chính sách bảo mật</span>
+      </label>
+      @if (hasError('terms', 'required')) {
+        <small class="field-error">Bạn cần đồng ý với điều khoản để đăng ký.</small>
+      }
+
+      @if (message()) {
+        <p class="message" [class.error]="isError()">{{ message() }}</p>
+      }
+
+      <button type="submit" class="submit-button" [disabled]="form.invalid || loading()">
+        {{ loading() ? 'Đang đăng ký...' : 'Đăng ký' }}
+        <span aria-hidden="true">→</span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      <a routerLink="/login">Đã có tài khoản? <span>Đăng nhập</span></a>
+    </div>
+  </section>
+</main>

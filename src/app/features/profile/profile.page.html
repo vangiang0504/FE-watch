@@ -1,0 +1,239 @@
+<main class="profile-page">
+  <header class="top-nav">
+    <a class="brand" routerLink="/home">HOROLOGUE</a>
+
+    <nav aria-label="Điều hướng chính">
+      <a routerLink="/home">Bộ sưu tập</a>
+      <a href="#heritage">Di sản</a>
+      <a href="#bespoke">Đặt riêng</a>
+      <a href="#experience">Trải nghiệm</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button type="button" class="icon-button" aria-label="Giỏ hàng" title="Giỏ hàng">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M6 6h15l-1.5 8.5H8L6 3H3" />
+          <circle cx="9" cy="20" r="1.5" />
+          <circle cx="18" cy="20" r="1.5" />
+        </svg>
+      </button>
+      <a class="profile-link" routerLink="/profile" aria-label="Hồ sơ cá nhân" title="Hồ sơ cá nhân">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M20 21a8 8 0 0 0-16 0" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="page-heading">
+    <h1>Hồ sơ cá nhân</h1>
+    <p>Quản lý thông tin tài khoản và trải nghiệm mua sắm của bạn.</p>
+  </section>
+
+  <section class="profile-layout">
+    <aside class="profile-sidebar" aria-label="Menu hồ sơ">
+      <button type="button" class="sidebar-tab-btn" [class.active]="activeTab() === 'profile'" (click)="setActiveTab('profile')">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M20 21a8 8 0 0 0-16 0" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Thông tin chung</span>
+      </button>
+      <button type="button" class="sidebar-tab-btn" [class.active]="activeTab() === 'collection'" (click)="setActiveTab('collection')">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="7" />
+          <path d="M12 8v4l3 2" />
+        </svg>
+        <span>Bộ sưu tập của tôi</span>
+      </button>
+      <button type="button" class="sidebar-tab-btn" [class.active]="activeTab() === 'orders'" (click)="setActiveTab('orders')">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <path d="M3 4v6h6" />
+        </svg>
+        <span>Lịch sử giao dịch</span>
+      </button>
+      <button type="button" class="sidebar-tab-btn" [class.active]="activeTab() === 'settings'" (click)="setActiveTab('settings')">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5z" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2 3.4-.2-.1a1.8 1.8 0 0 0-2 .3l-.4.2-.5 2.2h-4l-.5-2.2-.4-.2a1.8 1.8 0 0 0-2-.3l-.2.1-2-3.4.1-.1A1.7 1.7 0 0 0 4.6 15l-.2-.4-2.1-.7v-3.8l2.1-.7.2-.4a1.7 1.7 0 0 0-.3-1.9l-.1-.1 2-3.4.2.1a1.8 1.8 0 0 0 2-.3l.4-.2L9.3 1h4l.5 2.2.4.2a1.8 1.8 0 0 0 2 .3l.2-.1 2 3.4-.1.1a1.7 1.7 0 0 0-.3 1.9l.2.4 2.1.7v3.8l-2.1.7-.2.4z" />
+        </svg>
+        <span>Cài đặt tài khoản</span>
+      </button>
+      <button type="button" class="logout-link" (click)="logout()" [disabled]="loggingOut()">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="M16 17l5-5-5-5" />
+          <path d="M21 12H9" />
+        </svg>
+        <span>{{ loggingOut() ? 'Đang đăng xuất...' : 'Đăng xuất' }}</span>
+      </button>
+    </aside>
+
+    <section class="profile-panel">
+      @if (activeTab() === 'profile') {
+        @if (loadingProfile()) {
+          <p class="state-message">Đang tải thông tin cá nhân...</p>
+        } @else if (loadError()) {
+          <p class="state-message error">{{ loadError() }}</p>
+        } @else {
+          <div class="identity-block">
+            <div class="avatar-wrap">
+              <div class="profile-avatar">
+                <span>{{ initials() }}</span>
+              </div>
+              <button type="button" class="camera-button" aria-label="Đổi ảnh đại diện" title="Đổi ảnh đại diện">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M4 8h4l2-3h4l2 3h4v11H4z" />
+                  <circle cx="12" cy="13" r="3" />
+                </svg>
+              </button>
+            </div>
+            <div>
+              <h2>{{ displayName() }}</h2>
+              <p>{{ profile()?.role || 'USER' }}</p>
+            </div>
+          </div>
+
+          <div class="profile-summary">
+            <div>
+              <span>Họ và tên</span>
+              <strong>{{ profile()?.fullName || 'Chưa cập nhật' }}</strong>
+            </div>
+            <div>
+              <span>Tên người dùng</span>
+              <strong>{{ profile()?.username || 'Chưa cập nhật' }}</strong>
+            </div>
+            <div>
+              <span>Email liên hệ</span>
+              <strong>{{ profile()?.email }}</strong>
+            </div>
+            <div>
+              <span>Số điện thoại</span>
+              <strong>{{ profile()?.phone || 'Chưa cập nhật' }}</strong>
+            </div>
+          </div>
+
+          @if (message()) {
+            <p class="save-message">{{ message() }}</p>
+          }
+
+          <div class="profile-actions">
+            <button type="button" class="save-button" (click)="openEditProfile()">Cập nhật hồ sơ</button>
+          </div>
+        }
+      } @else if (activeTab() === 'orders') {
+        <h2>Lịch sử giao dịch</h2>
+        <p style="color: #919094; margin-top: 6px;">Xem danh sách đơn đặt hàng của bạn và trạng thái thanh toán.</p>
+
+        @if (loadingOrders()) {
+          <p class="state-message" style="margin-top: 24px;">Đang tải lịch sử giao dịch...</p>
+        } @else if (ordersError()) {
+          <p class="state-message error" style="margin-top: 24px;">{{ ordersError() }}</p>
+        } @else if (orders().length === 0) {
+          <p class="state-message" style="margin-top: 24px; color: #919094;">Bạn chưa có giao dịch nào.</p>
+        } @else {
+          <div class="orders-list">
+            @for (order of orders(); track order.orderId) {
+              <div class="order-card">
+                <div class="order-header">
+                  <div>
+                    <span class="order-id">Đơn hàng #{{ order.orderId }}</span>
+                    <div class="order-meta">Địa chỉ: {{ order.shippingAddress }}</div>
+                  </div>
+                  <span class="order-status" [class]="getStatusClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </div>
+                <div class="order-body">
+                  <div class="order-info-row">
+                    <span class="order-info-label">Phí vận chuyển</span>
+                    <span class="order-info-value">{{ order.shippingFee | number:'1.0-0' }} đ</span>
+                  </div>
+                  <div class="order-info-row">
+                    <span class="order-info-label">Tổng thanh toán</span>
+                    <span class="order-info-value" style="color: #e9c176; font-size: 18px; font-weight: 700;">
+                      {{ order.totalAmount | number:'1.0-0' }} đ
+                    </span>
+                  </div>
+                </div>
+
+                @if (order.status === 'PENDING_PAYMENT' && order.paymentUrl) {
+                  <div class="order-actions">
+                    <a [href]="order.paymentUrl" class="pay-now-btn">Thanh toán ngay</a>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      } @else if (activeTab() === 'collection') {
+        <h2>Bộ sưu tập của tôi</h2>
+        <p class="state-message" style="margin-top: 24px; color: #919094;">Chức năng đang được phát triển.</p>
+      } @else if (activeTab() === 'settings') {
+        <h2>Cài đặt tài khoản</h2>
+        <p class="state-message" style="margin-top: 24px; color: #919094;">Chức năng đang được phát triển.</p>
+      }
+    </section>
+  </section>
+
+  @if (editingProfile()) {
+    <div class="modal-backdrop" role="presentation" (click)="closeEditProfile()">
+      <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h2 id="profile-modal-title">Cập nhật hồ sơ</h2>
+            <p>Kiểm tra lại thông tin trước khi xác nhận.</p>
+          </div>
+          <button type="button" class="close-button" aria-label="Đóng" (click)="closeEditProfile()" [disabled]="updating()">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form [formGroup]="form" class="profile-form" (ngSubmit)="update()" novalidate>
+          <label>
+            <span>Họ và tên</span>
+            <input formControlName="fullName" type="text" autocomplete="name" />
+            @if (hasError('fullName', 'required')) {
+              <small>Vui lòng nhập họ và tên.</small>
+            }
+          </label>
+
+          <label>
+            <span>Tên người dùng</span>
+            <input formControlName="username" type="text" autocomplete="username" />
+            @if (hasError('username', 'required')) {
+              <small>Vui lòng nhập tên người dùng.</small>
+            }
+          </label>
+
+          <label>
+            <span>Email liên hệ</span>
+            <input formControlName="email" type="email" autocomplete="email" />
+            <small class="hint">Email đang được dùng để đăng nhập nên chưa cho chỉnh tại đây.</small>
+          </label>
+
+          <label>
+            <span>Số điện thoại</span>
+            <input formControlName="phone" type="tel" autocomplete="tel" />
+          </label>
+
+          @if (message()) {
+            <p class="save-message">{{ message() }}</p>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="ghost-button" (click)="closeEditProfile()" [disabled]="updating()">Hủy bỏ</button>
+            <button type="submit" class="save-button" [disabled]="updating()">
+              {{ updating() ? 'Đang cập nhật...' : 'Xác nhận' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</main>

@@ -1,0 +1,42 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Global Box Sizing Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbars to match dark theme and remove default white/grey browser borders */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #131315;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2d;
+  border-radius: 4px;
+  border: 2px solid #131315;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e9c176;
+}
+
+/* Firefox scrollbar support */
+html {
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2d #131315;
+  background-color: #131315;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #131315;
+  overflow-x: hidden;
+}

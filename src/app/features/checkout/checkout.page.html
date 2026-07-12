@@ -1,0 +1,216 @@
+<div class="checkout-layout min-h-screen flex flex-col bg-background text-on-background">
+  <header class="w-full py-8 px-margin-mobile md:px-margin-desktop flex justify-center items-center border-b border-white/5 bg-background/50 backdrop-blur-md sticky top-0 z-20">
+    <a class="font-headline-md text-headline-md tracking-tighter text-on-surface text-tertiary decoration-none" routerLink="/home">HOROLOGUE</a>
+  </header>
+
+  <main class="flex-grow max-w-container-max mx-auto w-full px-margin-mobile md:px-margin-desktop py-12 md:py-20 relative">
+    @if (orderLoading() || pollingOrder()) {
+      <div class="absolute inset-0 bg-background/80 backdrop-blur-md flex flex-col justify-center items-center z-50 rounded-xl min-h-[500px]">
+        <div class="relative w-20 h-20 mb-6">
+          <div class="absolute inset-0 rounded-full border-4 border-white/10"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-t-tertiary animate-spin"></div>
+        </div>
+        @if (orderLoading()) {
+          <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Dang tao don hang...</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant">He thong dang chuan bi thanh toan.</p>
+        } @else {
+          <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Dang ket noi voi PayOS...</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant text-center max-w-md px-4">
+            Ban se duoc chuyen den cong thanh toan PayOS.
+          </p>
+        }
+      </div>
+    }
+
+    <div class="w-full max-w-3xl mx-auto mb-16">
+      <div class="flex items-center justify-between relative">
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[1px] bg-white/10 -z-10"></div>
+        <div class="flex flex-col items-center gap-2 bg-background px-4">
+          <div class="w-2.5 h-2.5 rounded-full" [class.bg-tertiary]="currentStep() === 'info' || currentStep() === 'shipping' || currentStep() === 'payment'" [class.bg-white/20]="false"></div>
+          <span class="font-label-md text-label-md uppercase tracking-widest" [class.text-tertiary]="currentStep() === 'info'" [class.text-on-surface]="currentStep() !== 'info'">Thong tin</span>
+        </div>
+        <div class="flex flex-col items-center gap-2 bg-background px-4">
+          <div class="w-2.5 h-2.5 rounded-full" [class.bg-tertiary]="currentStep() === 'shipping' || currentStep() === 'payment'" [class.bg-white/20]="currentStep() === 'info'"></div>
+          <span class="font-label-md text-label-md uppercase tracking-widest" [class.text-tertiary]="currentStep() === 'shipping'" [class.text-on-surface]="currentStep() === 'payment'" [class.text-on-surface-variant]="currentStep() === 'info'">Van chuyen</span>
+        </div>
+        <div class="flex flex-col items-center gap-2 bg-background px-4">
+          <div class="w-2.5 h-2.5 rounded-full" [class.bg-tertiary]="currentStep() === 'payment'" [class.bg-white/20]="currentStep() !== 'payment'"></div>
+          <span class="font-label-md text-label-md uppercase tracking-widest" [class.text-tertiary]="currentStep() === 'payment'" [class.text-on-surface-variant]="currentStep() !== 'payment'">Thanh toan</span>
+        </div>
+      </div>
+    </div>
+
+    @if (orderError()) {
+      <div class="w-full max-w-3xl mx-auto mb-8 p-4 bg-error-container text-on-error-container border border-error/20 rounded-DEFAULT flex items-center gap-3">
+        <span class="material-symbols-outlined text-error">error</span>
+        <span class="font-body-md text-body-md">{{ orderError() }}</span>
+      </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter lg:gap-[80px]">
+      <div class="lg:col-span-7 space-y-10">
+        <form [formGroup]="form" (ngSubmit)="$event.preventDefault()" novalidate>
+          @if (currentStep() === 'info') {
+            <div class="space-y-10">
+              <section>
+                <h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Dia chi giao hang</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="md:col-span-2 form-field">
+                    <input formControlName="address" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md" placeholder="Dia chi" type="text"/>
+                    @if (hasError('address', 'required')) {
+                      <small class="field-error">Vui long nhap dia chi giao hang.</small>
+                    }
+                  </div>
+                  <div class="md:col-span-2 form-field">
+                    <input formControlName="apartment" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md" placeholder="Can ho, day phong, v.v. (tuy chon)" type="text"/>
+                  </div>
+                  <div class="form-field">
+                    <input formControlName="city" list="shipping-cities" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md" placeholder="Thanh pho" type="text"/>
+                    <datalist id="shipping-cities">
+                      @for (city of cityOptions; track city) {
+                        <option [value]="city"></option>
+                      }
+                    </datalist>
+                    @if (hasError('city', 'required')) {
+                      <small class="field-error">Vui long nhap thanh pho.</small>
+                    }
+                  </div>
+                  <div class="form-field relative">
+                    <select formControlName="country" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md appearance-none">
+                      <option value="VN">Viet Nam</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                  </div>
+                </div>
+              </section>
+
+              <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-tertiary transition-colors flex items-center gap-2 decoration-none" routerLink="/home">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back_ios</span>
+                  Quay lai gio hang
+                </a>
+                <button type="button" (click)="nextStep()" class="btn-primary w-full sm:w-auto px-8 py-4 rounded-DEFAULT font-label-md text-label-md uppercase tracking-widest cursor-pointer border-0">
+                  Tiep tuc den van chuyen
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 'shipping') {
+            <div class="space-y-10">
+              <section>
+                <h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Phuong thuc van chuyen</h2>
+                <div class="shipping-option flex justify-between items-center p-6 border border-tertiary bg-white/5 rounded-DEFAULT">
+                  <div class="flex items-center gap-4">
+                    <div class="w-5 h-5 rounded-full border-2 border-tertiary flex items-center justify-center">
+                      <div class="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
+                    </div>
+                    <div>
+                      <h4 class="font-label-md text-label-md text-on-surface mb-1">Giao hang theo dia chi</h4>
+                      <p class="font-body-md text-body-md text-on-surface-variant">Phi van chuyen duoc tinh theo thanh pho giao hang.</p>
+                    </div>
+                  </div>
+                  <span class="font-label-md text-label-md text-on-surface">{{ shippingFee() | number:'1.0-0' }} d</span>
+                </div>
+              </section>
+
+              <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button type="button" (click)="prevStep()" class="font-label-md text-label-md text-on-surface-variant hover:text-tertiary transition-colors flex items-center gap-2 decoration-none bg-transparent border-0 cursor-pointer">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back_ios</span>
+                  Quay lai thong tin
+                </button>
+                <button type="button" (click)="nextStep()" class="btn-primary w-full sm:w-auto px-8 py-4 rounded-DEFAULT font-label-md text-label-md uppercase tracking-widest cursor-pointer border-0">
+                  Tiep tuc den thanh toan
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 'payment') {
+            <div class="space-y-10">
+              <section>
+                <h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Phuong thuc thanh toan</h2>
+                <div class="payment-option p-6 border border-tertiary bg-white/5 rounded-DEFAULT">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-5 h-5 rounded-full border-2 border-tertiary flex items-center justify-center">
+                      <div class="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
+                    </div>
+                    <div class="flex-grow">
+                      <h4 class="font-label-md text-label-md text-on-surface">Thanh toan QR PayOS</h4>
+                      <p class="font-body-md text-body-md text-on-surface-variant">Quet ma QR de hoan tat thanh toan.</p>
+                    </div>
+                    <div class="logo-payos flex items-center justify-center px-3 py-1 bg-white rounded-sm">
+                      <span class="text-on-secondary-fixed font-bold tracking-widest font-caption text-caption">PayOS</span>
+                    </div>
+                  </div>
+                  <div class="p-4 bg-black/30 border border-white/5 rounded-sm text-on-surface-variant font-body-md text-body-md">
+                    Sau khi bam hoan tat dat hang, he thong se chuyen ban sang PayOS.
+                  </div>
+                </div>
+              </section>
+
+              <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button type="button" (click)="prevStep()" class="font-label-md text-label-md text-on-surface-variant hover:text-tertiary transition-colors flex items-center gap-2 decoration-none bg-transparent border-0 cursor-pointer">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back_ios</span>
+                  Quay lai van chuyen
+                </button>
+                <button type="button" (click)="submitOrder()" class="btn-primary w-full sm:w-auto px-8 py-4 rounded-DEFAULT font-label-md text-label-md uppercase tracking-widest cursor-pointer border-0">
+                  Hoan tat dat hang
+                </button>
+              </div>
+            </div>
+          }
+        </form>
+      </div>
+
+      <div class="lg:col-span-5 relative mt-12 lg:mt-0">
+        <div class="absolute -inset-4 bg-tertiary/5 rounded-[2rem] blur-3xl -z-10"></div>
+        <div class="glass-panel rounded-xl p-6 md:p-8 sticky top-8">
+          <h2 class="font-headline-sm text-headline-sm text-on-surface mb-8">Tom tat don hang</h2>
+
+          <div class="space-y-6 mb-8 max-h-[300px] overflow-y-auto pr-1">
+            @for (item of cartItems(); track item.id) {
+              <div class="flex gap-4 items-center">
+                <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0 border border-white/5">
+                  <img class="w-full h-full object-cover p-2 mix-blend-screen" [src]="item.image" [alt]="item.description"/>
+                  <span class="absolute -top-2 -right-2 bg-surface-variant text-on-surface font-caption text-caption w-6 h-6 flex items-center justify-center rounded-full border border-white/10 z-10">{{ item.quantity }}</span>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-label-md text-label-md text-on-surface">{{ item.name }}</h3>
+                  <p class="font-body-md text-body-md text-on-surface-variant">{{ item.description }}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <p class="font-body-md text-body-md text-on-surface">{{ item.price | number:'1.0-0' }} d</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="space-y-4 font-body-md text-body-md text-on-surface-variant">
+            <div class="flex justify-between">
+              <span>Tam tinh</span>
+              <span class="text-on-surface">{{ subtotal() | number:'1.0-0' }} d</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Van chuyen</span>
+              <span class="text-on-surface">
+                @if (currentStep() === 'info') {
+                  Tinh o buoc tiep theo
+                } @else {
+                  {{ shippingFee() | number:'1.0-0' }} d
+                }
+              </span>
+            </div>
+            <div class="pt-4 mt-4 border-t border-white/10 flex justify-between items-end">
+              <span class="font-headline-sm text-headline-sm text-on-surface">Tong cong</span>
+              <div class="text-right">
+                <span class="font-caption text-caption text-on-surface-variant mr-2">VND</span>
+                <span class="font-headline-sm text-headline-sm text-tertiary">{{ totalAmount() | number:'1.0-0' }} d</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

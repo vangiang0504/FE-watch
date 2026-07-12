@@ -1,0 +1,160 @@
+<nav class="top-nav">
+  <div class="nav-inner">
+    <div class="brand">HOROLOGUE</div>
+    <div class="nav-links">
+      <a class="active" href="javascript:void(0)">Collection</a>
+      <a href="javascript:void(0)">Heritage</a>
+      <a href="javascript:void(0)">Bespoke</a>
+      <a href="javascript:void(0)">Experience</a>
+    </div>
+    <div class="nav-actions">
+      <button type="button" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6h15l-1.5 8.5H8L6 3H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+      </button>
+      <button type="button" aria-label="Tài khoản">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="page-shell">
+  <aside class="filters-panel glass-panel">
+    <h2>Bộ Lọc</h2>
+
+    <div class="filter-group">
+      <h3>Thương Hiệu</h3>
+      <div class="filter-options">
+        @for (brand of brands(); track brand) {
+          <label class="checkbox-row">
+            <input
+              type="checkbox"
+              [checked]="selectedBrands().has(brand)"
+              (change)="toggleBrand(brand)"
+            />
+            <span>{{ brand }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <h3>Mức Giá</h3>
+      <div class="filter-options">
+        <label class="radio-row">
+          <input type="radio" name="price" [checked]="priceRange() === 'all'" (change)="setPriceRange('all')" />
+          <span>Tất cả</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="price" [checked]="priceRange() === 'under10m'" (change)="setPriceRange('under10m')" />
+          <span>Dưới 10 triệu ₫</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="price" [checked]="priceRange() === '10m-200m'" (change)="setPriceRange('10m-200m')" />
+          <span>10 triệu - 200 triệu ₫</span>
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="price" [checked]="priceRange() === 'over200m'" (change)="setPriceRange('over200m')" />
+          <span>Trên 200 triệu ₫</span>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <section class="product-section">
+    <header class="section-header">
+      <div>
+        <h1>Bộ Sưu Tập</h1>
+        <p>Tuyệt tác thời gian được tuyển chọn.</p>
+      </div>
+      <div class="sort-control">
+        <span>Sắp xếp theo:</span>
+        <select [value]="sortBy()" (change)="onSortChange($any($event.target).value)">
+          <option value="new">Mới nhất</option>
+          <option value="price_asc">Giá tăng dần</option>
+          <option value="price_desc">Giá giảm dần</option>
+        </select>
+      </div>
+    </header>
+
+    @if (errorMessage()) {
+      <p class="error-banner">{{ errorMessage() }}</p>
+    }
+
+    @if (loading()) {
+      <div class="product-grid">
+        @for (_ of skeletonPlaceholders; track $index) {
+          <div class="watch-card glass-panel skeleton">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-info">
+              <div class="skeleton-line short"></div>
+              <div class="skeleton-line medium"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (pageItems().length === 0) {
+      <p class="empty-state">Không tìm thấy sản phẩm nào.</p>
+    } @else {
+      <div class="product-grid">
+        @for (product of pageItems(); track product.id) {
+          <article class="watch-card glass-panel">
+            <a class="card-link" [routerLink]="['/products', product.id]">
+              <div class="watch-image">
+                @if (product.imageUrl) {
+                  <img [src]="product.imageUrl" [alt]="product.name" />
+                }
+                <span class="view-hint">Xem chi tiết</span>
+              </div>
+              <div class="watch-info">
+                <div class="info-top">
+                  <p class="brand-label">{{ product.brand || '—' }}</p>
+                  @if (product.category) {
+                    <span class="category-chip">{{ product.category }}</span>
+                  }
+                </div>
+                <h3>{{ product.name }}</h3>
+              </div>
+            </a>
+            <div class="card-footer">
+              <span class="price">{{ product.price | number }} ₫</span>
+              <button
+                type="button"
+                class="favorite-btn"
+                [class.active]="favorites().has(product.id)"
+                (click)="toggleFavorite(product.id)"
+                aria-label="Yêu thích"
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 5 6 5c2 0 3.5 1 6 3.5C14.5 6 16 5 18 5c3.5 0 5.5 3.5 3.5 7.5C19 16.65 12 21 12 21z" [attr.fill]="favorites().has(product.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    <div class="pagination-footer">
+      <button type="button" class="page-btn" [disabled]="page() === 0" (click)="goToPage(-1)" aria-label="Trang trước">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="page-indicator">{{ page() + 1 }} / {{ totalPages() }}</span>
+      <button type="button" class="page-btn" [disabled]="page() >= totalPages() - 1" (click)="goToPage(1)" aria-label="Trang sau">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="page-footer">
+  <div class="footer-brand">HOROLOGUE</div>
+  <div class="footer-links">
+    <a href="javascript:void(0)">Privacy Policy</a>
+    <a href="javascript:void(0)">Terms of Service</a>
+    <a href="javascript:void(0)">Shipping &amp; Returns</a>
+    <a href="javascript:void(0)">Contact Us</a>
+  </div>
+  <div class="footer-copyright">© 2026 HOROLOGUE PRESTIGE. ALL RIGHTS RESERVED.</div>
+</footer>

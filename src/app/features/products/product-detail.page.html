@@ -1,0 +1,118 @@
+<nav class="top-nav">
+  <div class="nav-inner">
+    <a class="brand" routerLink="/products">HOROLOGUE</a>
+    <div class="nav-links">
+      <a class="active" routerLink="/products">Collection</a>
+      <a href="javascript:void(0)">Heritage</a>
+      <a href="javascript:void(0)">Bespoke</a>
+      <a href="javascript:void(0)">Experience</a>
+    </div>
+    <div class="nav-actions">
+      <button type="button" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6h15l-1.5 8.5H8L6 3H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+      </button>
+      <button type="button" aria-label="Tài khoản">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="detail-shell">
+  <div class="ambient-glow"></div>
+
+  <div class="content">
+    <a class="back-link" routerLink="/products">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Quay lại Bộ Sưu Tập
+    </a>
+
+    @if (loading()) {
+      <div class="detail-grid skeleton">
+        <div class="skeleton-image glass-panel"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line long"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line long"></div>
+          <div class="skeleton-line long"></div>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <p class="error-banner">{{ errorMessage() }}</p>
+    } @else if (product(); as p) {
+      <div class="detail-grid">
+        <div class="image-panel glass-panel">
+          @if (p.imageUrl) {
+            <img [src]="p.imageUrl" [alt]="p.name" />
+          }
+        </div>
+
+        <div class="info-panel">
+          <p class="category-chip">{{ p.category || 'Uncategorized' }}</p>
+          <p class="brand-label">{{ p.brand || '—' }}</p>
+          <h1>{{ p.name }}</h1>
+
+          <div class="price-block">
+            <span class="price">{{ p.price | number }} ₫</span>
+
+            @if (stockChecked()) {
+              @if (stockQuantity() !== null && stockQuantity()! > 0) {
+                <span class="stock-badge in-stock">Còn {{ stockQuantity() }} sản phẩm</span>
+              } @else if (stockQuantity() === 0) {
+                <span class="stock-badge out-of-stock">Hết hàng</span>
+              } @else {
+                <span class="stock-badge unknown">Chưa rõ tồn kho</span>
+              }
+            }
+          </div>
+
+          <p class="description">{{ p.description || 'Chưa có mô tả cho sản phẩm này.' }}</p>
+
+          <div class="action-row">
+            <button type="button" class="primary-button" [disabled]="stockQuantity() === 0">
+              {{ stockQuantity() === 0 ? 'Hết hàng' : 'Thêm vào giỏ' }}
+            </button>
+            <button
+              type="button"
+              class="favorite-button"
+              [class.active]="favorited()"
+              (click)="toggleFavorite()"
+              aria-label="Yêu thích"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22">
+                <path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 5 6 5c2 0 3.5 1 6 3.5C14.5 6 16 5 18 5c3.5 0 5.5 3.5 3.5 7.5C19 16.65 12 21 12 21z" [attr.fill]="favorited() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <dl class="spec-list">
+            <div class="spec-row">
+              <dt>Mã sản phẩm</dt>
+              <dd>{{ p.id }}</dd>
+            </div>
+            <div class="spec-row">
+              <dt>Thương hiệu</dt>
+              <dd>{{ p.brand || '—' }}</dd>
+            </div>
+            <div class="spec-row">
+              <dt>Phân loại</dt>
+              <dd>{{ p.category || '—' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    }
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="footer-brand">HOROLOGUE</div>
+  <div class="footer-links">
+    <a href="javascript:void(0)">Privacy Policy</a>
+    <a href="javascript:void(0)">Terms of Service</a>
+    <a href="javascript:void(0)">Shipping &amp; Returns</a>
+    <a href="javascript:void(0)">Contact Us</a>
+  </div>
+  <div class="footer-copyright">© 2026 HOROLOGUE PRESTIGE. ALL RIGHTS RESERVED.</div>
+</footer>

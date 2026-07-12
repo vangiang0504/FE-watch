@@ -1,0 +1,458 @@
+:host {
+  display: block;
+  color: #e4e2e4;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.product-management-page {
+  display: block;
+}
+
+// Header
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .page-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.page-header h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #e4e2e4;
+}
+
+.page-header p {
+  margin: 0;
+  color: #c7c6ca;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-field svg {
+  position: absolute;
+  left: 16px;
+  color: #919094;
+  pointer-events: none;
+}
+
+.search-field input {
+  width: 260px;
+  padding: 12px 24px 12px 44px;
+  border-radius: 9999px;
+  border: 1px solid rgba(145, 144, 148, 0.3);
+  background: rgba(31, 31, 33, 0.5);
+  color: #e4e2e4;
+  font: inherit;
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+.search-field input:focus {
+  border-color: #e9c176;
+}
+
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 9999px;
+  background: #c5a059;
+  color: #0a0a0b;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow 200ms ease;
+}
+
+.add-button:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
+}
+
+.add-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-banner {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 180, 171, 0.3);
+  background: rgba(255, 180, 171, 0.08);
+  color: #ffb4ab;
+  font-size: 14px;
+}
+
+// Glass panel + table
+
+.glass-panel {
+  border: 1px solid rgba(198, 198, 198, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.table-head,
+.table-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: 16px;
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.table-head {
+  background: rgba(42, 42, 44, 0.4);
+  border-bottom: 1px solid rgba(145, 144, 148, 0.1);
+  color: #c7c6ca;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-row {
+  border-bottom: 1px solid rgba(198, 198, 198, 0.05);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.table-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-bottom-color: rgba(233, 193, 118, 0.3);
+}
+
+.col-product {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #1f1f21;
+  border: 1px solid rgba(233, 193, 118, 0.12);
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-placeholder {
+  color: #46464a;
+}
+
+.col-product h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e4e2e4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-label {
+  margin: 0;
+  font-size: 12px;
+  color: #e9c176;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.col-category {
+  color: #c7c6ca;
+}
+
+.category-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(198, 198, 198, 0.08);
+  color: #c7c6ca;
+  font-size: 12px;
+}
+
+.price-value {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #e4e2e4;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}
+
+.price-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.price-edit input {
+  width: 110px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(233, 193, 118, 0.4);
+  background: rgba(10, 10, 11, 0.6);
+  color: #e4e2e4;
+  font: inherit;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  background: rgba(197, 160, 89, 0.1);
+  color: #c5a059;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.status-badge[data-status='out-of-stock'] {
+  border-color: rgba(255, 180, 171, 0.3);
+  background: rgba(255, 180, 171, 0.1);
+  color: #ffb4ab;
+}
+
+.status-badge[data-status='low-stock'] {
+  border-color: rgba(233, 193, 118, 0.35);
+  background: rgba(233, 193, 118, 0.12);
+  color: #e9c176;
+}
+
+.status-badge[data-status='in-stock'] {
+  border-color: rgba(142, 204, 158, 0.3);
+  background: rgba(142, 204, 158, 0.1);
+  color: #8ecc9e;
+}
+
+.status-badge[data-status='unknown'] {
+  border-color: rgba(145, 144, 148, 0.3);
+  background: rgba(145, 144, 148, 0.1);
+  color: #919094;
+}
+
+.status-qty {
+  opacity: 0.75;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.col-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #c7c6ca;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.icon-btn:hover {
+  color: #e9c176;
+  background: rgba(233, 193, 118, 0.1);
+}
+
+.icon-btn.danger:hover {
+  color: #ffb4ab;
+  background: rgba(255, 180, 171, 0.1);
+}
+
+.empty-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: #919094;
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(145, 144, 148, 0.1);
+  background: rgba(27, 27, 29, 0.3);
+  font-size: 12px;
+  color: #c7c6ca;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid rgba(145, 144, 148, 0.2);
+  background: none;
+  color: #e4e2e4;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: #e9c176;
+  color: #e9c176;
+}
+
+.pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination .page-number.active {
+  border-color: #e9c176;
+  background: rgba(233, 193, 118, 0.1);
+  color: #e9c176;
+}
+
+// Modal
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 10, 11, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+}
+
+.modal-panel {
+  width: min(100%, 480px);
+  padding: 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.modal-panel h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  color: #e4e2e4;
+}
+
+.modal-panel label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: #c7c6ca;
+}
+
+.modal-panel input,
+.modal-panel textarea {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 11, 0.6);
+  color: #e4e2e4;
+  font: inherit;
+  outline: none;
+  resize: vertical;
+}
+
+.modal-panel input:focus,
+.modal-panel textarea:focus {
+  border-color: #e9c176;
+}
+
+.field-error {
+  color: #ffb4ab;
+  font-size: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.secondary-button,
+.danger-button {
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e4e2e4;
+}
+
+.danger-button {
+  border: 0;
+  background: #ffb4ab;
+  color: #690005;
+}
+
+.confirm-panel p {
+  margin: 0;
+  color: #c7c6ca;
+}

@@ -1,0 +1,36 @@
+.coming-soon {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 64px 40px;
+  border: 1px solid rgba(198, 198, 198, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  background: rgba(197, 160, 89, 0.1);
+  color: #c5a059;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  color: #e4e2e4;
+}
+
+p {
+  margin: 0;
+  color: #c7c6ca;
+  max-width: 480px;
+}

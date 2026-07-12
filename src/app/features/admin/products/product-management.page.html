@@ -1,0 +1,180 @@
+<div class="product-management-page">
+  <header class="page-header">
+        <div>
+          <h2>Quản lý Sản phẩm</h2>
+          <p>Kiểm soát danh mục đồng hồ cao cấp của bạn.</p>
+        </div>
+        <div class="header-actions">
+          <div class="search-field">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M21 21l-4.35-4.35M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input
+              type="text"
+              placeholder="Tìm kiếm mẫu, thương hiệu..."
+              [value]="searchTerm()"
+              (input)="onSearchChange($any($event.target).value)"
+            />
+          </div>
+          <button class="add-button" type="button" (click)="openCreateForm()">+ Thêm Mới</button>
+        </div>
+      </header>
+
+      @if (errorMessage()) {
+        <p class="error-banner">{{ errorMessage() }}</p>
+      }
+
+      <div class="glass-panel table-panel">
+        <div class="table-head">
+          <div class="col col-product">Sản Phẩm</div>
+          <div class="col col-category">Danh Mục</div>
+          <div class="col col-price">Giá (VNĐ)</div>
+          <div class="col col-status">Trạng Thái</div>
+          <div class="col col-actions">Tác Vụ</div>
+        </div>
+
+        <div class="table-body">
+          @if (loading()) {
+            <p class="empty-state">Đang tải...</p>
+          } @else if (pageItems().length === 0) {
+            <p class="empty-state">Không có sản phẩm nào.</p>
+          }
+
+          @for (product of pageItems(); track product.productId) {
+            <div class="table-row">
+              <div class="col col-product">
+                <div class="thumb">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.name" />
+                  } @else {
+                    <svg class="thumb-placeholder" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/></svg>
+                  }
+                </div>
+                <div>
+                  <h3>{{ product.name }}</h3>
+                  <p class="brand-label">{{ product.brand || '—' }}</p>
+                </div>
+              </div>
+              <div class="col col-category">
+                @if (product.category) {
+                  <span class="category-chip">{{ product.category }}</span>
+                } @else {
+                  —
+                }
+              </div>
+              <div class="col col-price">
+                @if (priceEditProductId() === product.productId) {
+                  <div class="price-edit">
+                    <input
+                      type="number"
+                      min="0"
+                      [value]="priceEditValue()"
+                      (input)="priceEditValue.set($any($event.target).valueAsNumber)"
+                    />
+                    <button type="button" class="icon-btn" [disabled]="priceSubmitting()" (click)="submitPriceEdit()">✓</button>
+                    <button type="button" class="icon-btn" (click)="cancelPriceEdit()">✕</button>
+                  </div>
+                } @else {
+                  <button type="button" class="price-value" (click)="openPriceEdit(product)">
+                    {{ product.price | number }}
+                  </button>
+                }
+              </div>
+              <div class="col col-status">
+                <span class="status-badge" [attr.data-status]="stockStatusOf(product.productId)">
+                  {{ stockLabelOf(product.productId) }}
+                  @if (stockOf(product.productId); as qty) {
+                    <span class="status-qty">· {{ qty }}</span>
+                  }
+                </span>
+              </div>
+              <div class="col col-actions">
+                <button type="button" class="icon-btn" (click)="openEditForm(product)" aria-label="Sửa">✎</button>
+                <button type="button" class="icon-btn danger" (click)="confirmDelete(product)" aria-label="Xóa">🗑</button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="table-footer">
+          <span>Hiển thị {{ pageItems().length }} / {{ filtered().length }} sản phẩm</span>
+          <div class="pagination">
+            <button type="button" [disabled]="page() === 0" (click)="goToPage(page() - 1)">‹</button>
+            @for (p of [].constructor(totalPages()); track $index) {
+              <button type="button" class="page-number" [class.active]="page() === $index" (click)="goToPage($index)">
+                {{ $index + 1 }}
+              </button>
+            }
+            <button type="button" [disabled]="page() >= totalPages() - 1" (click)="goToPage(page() + 1)">›</button>
+          </div>
+        </div>
+      </div>
+</div>
+
+@if (formMode()) {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <form class="glass-panel modal-panel" [formGroup]="form" (submit)="submitForm()" (click)="$event.stopPropagation()">
+      <h3>{{ formMode() === 'edit' ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới' }}</h3>
+
+      <label>
+        Tên sản phẩm
+        <input type="text" formControlName="name" />
+        @if (hasError('name', 'required')) {
+          <span class="field-error">Bắt buộc nhập tên sản phẩm.</span>
+        }
+      </label>
+
+      <label>
+        Thương hiệu
+        <input type="text" formControlName="brand" />
+      </label>
+
+      <label>
+        Danh mục
+        <input type="text" formControlName="category" />
+      </label>
+
+      <label>
+        Mô tả
+        <textarea rows="3" formControlName="description"></textarea>
+      </label>
+
+      @if (formMode() === 'create') {
+        <label>
+          Giá (VNĐ)
+          <input type="number" min="0" formControlName="price" />
+          @if (hasError('price', 'required') || hasError('price', 'min')) {
+            <span class="field-error">Giá phải >= 0.</span>
+          }
+        </label>
+      }
+
+      <label>
+        URL hình ảnh
+        <input type="text" formControlName="imageUrl" />
+      </label>
+
+      @if (formError()) {
+        <p class="field-error">{{ formError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" (click)="closeForm()">Hủy</button>
+        <button type="submit" class="add-button" [disabled]="formSubmitting()">
+          {{ formSubmitting() ? 'Đang lưu...' : 'Lưu' }}
+        </button>
+      </div>
+    </form>
+  </div>
+}
+
+@if (deletingProductId()) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div class="glass-panel modal-panel confirm-panel" (click)="$event.stopPropagation()">
+      <h3>Xóa sản phẩm?</h3>
+      <p>Hành động này không thể hoàn tác.</p>
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" (click)="cancelDelete()">Hủy</button>
+        <button type="button" class="danger-button" (click)="deleteConfirmed()">Xóa</button>
+      </div>
+    </div>
+  </div>
+}
