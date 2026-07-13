@@ -15,19 +15,27 @@ export interface OrderItemRequest {
 }
 
 export interface CreateOrderRequest {
-  userId: number;
+  userId: string | number;
   items: OrderItemRequest[];
   shippingAddress: string;
 }
 
 export interface OrderResponse {
-  orderId: number;
-  userId: number;
+  orderId: string | number;
+  userId: string | number;
   status: string;
   totalAmount: number;
   shippingAddress: string;
   shippingFee?: number;
   paymentUrl?: string;
+  confirmAvailableAt?: string;
+}
+
+export interface ShippingFeeRule {
+  regionCode: string;
+  regionName: string;
+  fee: number;
+  remoteFee: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,14 +43,22 @@ export class CheckoutApiService {
   private readonly http = inject(HttpClient);
 
   createOrder(request: CreateOrderRequest): Observable<ApiResponse<OrderResponse>> {
-    return this.http.post<ApiResponse<OrderResponse>>('/api/orders', request);
+    return this.http.post<ApiResponse<OrderResponse>>('/api/v1/orders', request);
   }
 
-  getOrder(orderId: number): Observable<ApiResponse<OrderResponse>> {
-    return this.http.get<ApiResponse<OrderResponse>>(`/api/orders/${orderId}`);
+  getOrder(orderId: string | number): Observable<ApiResponse<OrderResponse>> {
+    return this.http.get<ApiResponse<OrderResponse>>(`/api/v1/orders/${orderId}`);
   }
 
   getMyOrders(): Observable<ApiResponse<OrderResponse[]>> {
-    return this.http.get<ApiResponse<OrderResponse[]>>('/api/orders/me');
+    return this.http.get<ApiResponse<OrderResponse[]>>('/api/v1/orders/me');
+  }
+
+  confirmReceived(orderId: string | number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`/api/v1/orders/${orderId}/confirm-received`, {});
+  }
+
+  getShippingFees(): Observable<ShippingFeeRule[]> {
+    return this.http.get<ShippingFeeRule[]>('/api/v1/shipping/fees');
   }
 }

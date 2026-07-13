@@ -21,7 +21,7 @@ export interface InventoryStock {
 @Injectable({ providedIn: 'root' })
 export class InventoryCatalogApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/inventory';
+  private readonly baseUrl = '/api/v1/inventory';
 
   getByProductId(productId: string): Observable<ApiResponse<InventoryStock>> {
     return this.http.get<ApiResponse<InventoryStock>>(`${this.baseUrl}/${productId}`);

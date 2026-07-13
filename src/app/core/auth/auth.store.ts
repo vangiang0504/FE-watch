@@ -50,7 +50,8 @@ export class AuthStore {
       );
       const parsed = JSON.parse(jsonPayload) as { sub: string; email: string; role: string };
       return {
-        id: Number(parsed.sub),
+        // IDs are Java Long values and may exceed JavaScript's safe integer range.
+        id: parsed.sub,
         email: parsed.email,
         role: parsed.role,
       };
