@@ -2,10 +2,10 @@
   <div class="nav-inner">
     <div class="brand">HOROLOGUE</div>
     <div class="nav-links">
-      <a class="active" href="javascript:void(0)">Collection</a>
-      <a href="javascript:void(0)">Heritage</a>
-      <a href="javascript:void(0)">Bespoke</a>
-      <a href="javascript:void(0)">Experience</a>
+      <a class="active" href="javascript:void(0)">Bộ sưu tập</a>
+      <a href="javascript:void(0)">Di sản</a>
+      <a href="javascript:void(0)">Đặt riêng</a>
+      <a href="javascript:void(0)">Trải nghiệm</a>
     </div>
     <div class="nav-actions">
       <button type="button" aria-label="Giỏ hàng">
@@ -111,7 +111,7 @@
                 <div class="info-top">
                   <p class="brand-label">{{ product.brand || '—' }}</p>
                   @if (product.category) {
-                    <span class="category-chip">{{ product.category }}</span>
+                    <span class="category-chip">{{ categoryLabel(product.category) }}</span>
                   }
                 </div>
                 <h3>{{ product.name }}</h3>
@@ -151,10 +151,10 @@
 <footer class="page-footer">
   <div class="footer-brand">HOROLOGUE</div>
   <div class="footer-links">
-    <a href="javascript:void(0)">Privacy Policy</a>
-    <a href="javascript:void(0)">Terms of Service</a>
-    <a href="javascript:void(0)">Shipping &amp; Returns</a>
-    <a href="javascript:void(0)">Contact Us</a>
+    <a href="javascript:void(0)">Chính sách bảo mật</a>
+    <a href="javascript:void(0)">Điều khoản dịch vụ</a>
+    <a href="javascript:void(0)">Vận chuyển &amp; đổi trả</a>
+    <a href="javascript:void(0)">Liên hệ</a>
   </div>
-  <div class="footer-copyright">© 2026 HOROLOGUE PRESTIGE. ALL RIGHTS RESERVED.</div>
+  <div class="footer-copyright">© 2026 HOROLOGUE PRESTIGE. BẢN QUYỀN ĐƯỢC BẢO LƯU.</div>
 </footer>

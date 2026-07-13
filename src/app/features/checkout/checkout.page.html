@@ -64,22 +64,56 @@
                   <div class="md:col-span-2 form-field">
                     <input formControlName="apartment" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md" placeholder="Can ho, day phong, v.v. (tuy chon)" type="text"/>
                   </div>
-                  <div class="form-field">
-                    <input formControlName="city" list="shipping-cities" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md" placeholder="Thanh pho" type="text"/>
-                    <datalist id="shipping-cities">
-                      @for (city of cityOptions; track city) {
-                        <option [value]="city"></option>
-                      }
-                    </datalist>
+                  <div class="form-field relative">
+                    <button type="button" [disabled]="shippingRulesLoading()" (click)="toggleCityDropdown($event)" class="input-ghost flex w-full items-center justify-between px-4 py-4 rounded-DEFAULT font-body-md text-body-md text-left cursor-pointer">
+                      <span [class.text-on-surface-variant]="!selectedCity()">{{ selectedCity() || (shippingRulesLoading() ? 'Đang tải khu vực...' : 'Tìm tỉnh / thành phố') }}</span>
+                      <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+                    </button>
+                    @if (cityDropdownOpen()) {
+                      <div (click)="$event.stopPropagation()" class="dropdown-menu-container rounded-lg shadow-2xl">
+                        <div class="dropdown-search-box">
+                          <span class="material-symbols-outlined search-icon">search</span>
+                          <input [value]="citySearch()" (input)="filterCity($any($event.target).value)" (click)="$event.stopPropagation()" class="dropdown-search-input" placeholder="Tìm kiếm" type="search" autocomplete="off"/>
+                        </div>
+                        <div class="dropdown-list-wrapper max-h-60 overflow-y-auto">
+                          @for (city of filteredCities(); track city) {
+                            <button type="button" (mousedown)="$event.preventDefault()" (click)="selectCity(city)" class="dropdown-item" [class.selected]="selectedCity() === city">{{ city }}</button>
+                          } @empty {
+                            <div class="dropdown-empty">Không tìm thấy tỉnh/thành.</div>
+                          }
+                        </div>
+                      </div>
+                    }
                     @if (hasError('city', 'required')) {
-                      <small class="field-error">Vui long nhap thanh pho.</small>
+                      <small class="field-error">Vui lòng chọn tỉnh / thành phố.</small>
                     }
                   </div>
                   <div class="form-field relative">
-                    <select formControlName="country" class="input-ghost w-full px-4 py-4 rounded-DEFAULT font-body-md text-body-md appearance-none">
-                      <option value="VN">Viet Nam</option>
-                    </select>
-                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                    <button type="button" [disabled]="!selectedCity()" (click)="toggleWardDropdown($event)" class="input-ghost flex w-full items-center justify-between px-4 py-4 rounded-DEFAULT font-body-md text-body-md text-left" [class.cursor-not-allowed]="!selectedCity()" [class.cursor-pointer]="selectedCity()">
+                      <span [class.text-on-surface-variant]="!selectedWard()">{{ selectedWard() || (selectedCity() ? 'Tìm phường / xã' : 'Chọn tỉnh / thành phố trước') }}</span>
+                      <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+                    </button>
+                    @if (wardDropdownOpen()) {
+                      <div (click)="$event.stopPropagation()" class="dropdown-menu-container rounded-lg shadow-2xl">
+                        <div class="dropdown-search-box">
+                          <span class="material-symbols-outlined search-icon">search</span>
+                          <input [value]="wardSearch()" (input)="filterWard($any($event.target).value)" (click)="$event.stopPropagation()" class="dropdown-search-input" placeholder="Tìm kiếm" type="search" autocomplete="off"/>
+                        </div>
+                        <div class="dropdown-list-wrapper max-h-60 overflow-y-auto">
+                          @for (ward of filteredWards(); track ward.name) {
+                            <button type="button" (mousedown)="$event.preventDefault()" (click)="selectWard(ward.name)" class="dropdown-item flex items-center justify-between" [class.selected]="selectedWard() === ward.name">
+                              <span>{{ ward.name }}</span>
+                              <small class="item-fee">{{ ward.fee | number:'1.0-0' }} đ</small>
+                            </button>
+                          } @empty {
+                            <div class="dropdown-empty">Không tìm thấy phường/xã.</div>
+                          }
+                        </div>
+                      </div>
+                    }
+                    @if (hasError('ward', 'required')) {
+                      <small class="field-error">Vui lòng chọn phường / xã.</small>
+                    }
                   </div>
                 </div>
               </section>

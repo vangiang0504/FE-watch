@@ -5,16 +5,19 @@ import { AuthStore } from '../auth/auth.store';
 import { TokenStorageService } from '../auth/token-storage.service';
 import { TokenResponse } from '../api/identity/identity-api.service';
 
-const PUBLIC_AUTH_ENDPOINTS = ['/auth/login', '/auth/google', '/auth/register', '/auth/refresh', '/auth/logout'];
+const PUBLIC_ENDPOINTS = [
+  '/auth/login', '/auth/google', '/auth/register', '/auth/refresh', '/auth/logout',
+  '/api/products', '/api/inventory',
+];
 let refreshRequest$: Observable<TokenResponse> | null = null;
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthStore);
   const tokenStorage = inject(TokenStorageService);
   const token = tokenStorage.getAccessToken();
-  const isPublicAuthRequest = PUBLIC_AUTH_ENDPOINTS.some((endpoint) => request.url.includes(endpoint));
+  const isPublicRequest = PUBLIC_ENDPOINTS.some((endpoint) => request.url.includes(endpoint));
 
-  if (!token || isPublicAuthRequest) {
+  if (!token || isPublicRequest) {
     return next(request);
   }
 

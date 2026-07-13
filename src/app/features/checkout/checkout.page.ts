@@ -1,17 +1,35 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { AuthStore } from '../../core/auth/auth.store';
 import { CartService } from '../../core/cart/cart.service';
-import { CheckoutApiService, OrderResponse } from '../../core/api/checkout/checkout-api.service';
-import { catchError, map, of, Subscription, interval } from 'rxjs';
+import {
+  CheckoutApiService,
+  OrderResponse,
+  ShippingFeeRule,
+} from '../../core/api/checkout/checkout-api.service';
+import { interval, Subscription } from 'rxjs';
 
 interface CheckoutForm {
   address: FormControl<string>;
   apartment: FormControl<string>;
   city: FormControl<string>;
-  country: FormControl<string>;
+  ward: FormControl<string>;
+}
+
+interface WardOption {
+  name: string;
+  fee: number;
 }
 
 @Component({
@@ -23,7 +41,7 @@ interface CheckoutForm {
 })
 
 
-export class CheckoutPage {
+export class CheckoutPage implements OnInit, OnDestroy {
   private readonly auth = inject(AuthStore);
   private readonly cart = inject(CartService);
   private readonly checkoutApi = inject(CheckoutApiService);
@@ -46,29 +64,60 @@ export class CheckoutPage {
   // Subscriptions
   private pollSubscription?: Subscription;
 
-  // Checkout items from CartService
   protected readonly cartItems = this.cart.items;
-  protected readonly cityOptions = [
-    'Ho Chi Minh',
-    'Ha Noi',
-    'Da Nang',
-    'Hai Phong',
-    'Can Tho',
-    'Binh Duong',
-    'Dong Nai',
-    'Ba Ria Vung Tau',
-    'Hue',
-    'Quang Ninh',
-    'Nha Trang',
-    'Da Lat',
-  ];
+  private readonly shippingRules = signal<ShippingFeeRule[]>([]);
+  protected readonly shippingRulesLoading = signal(true);
+  protected readonly selectedCity = signal('');
+  protected readonly selectedWard = signal('');
+  protected readonly cityDropdownOpen = signal(false);
+  protected readonly wardDropdownOpen = signal(false);
+  protected readonly citySearch = signal('');
+  protected readonly wardSearch = signal('');
+
+  protected readonly cityOptions = computed(() => {
+    const provinces = this.shippingRules()
+      .filter((rule) => rule.regionCode !== 'DEFAULT' && !rule.regionCode.startsWith('QNH_'))
+      .map((rule) => rule.regionName);
+    return this.shippingRules().some((rule) => rule.regionCode.startsWith('QNH_'))
+      ? ['Quy Nhơn', ...provinces]
+      : provinces;
+  });
+
+  protected readonly wardOptions = computed<WardOption[]>(() => {
+    const city = this.selectedCity();
+    if (!city) {
+      return [];
+    }
+    if (city === 'Quy Nhơn') {
+      return this.shippingRules()
+        .filter((rule) => rule.regionCode.startsWith('QNH_'))
+        .map((rule) => ({ name: rule.regionName, fee: rule.fee }));
+    }
+    const rule = this.shippingRules().find((candidate) => candidate.regionName === city);
+    return rule
+      ? [
+          { name: 'Phường trung tâm', fee: rule.fee },
+          { name: 'Huyện/xã ngoại thành', fee: rule.remoteFee ?? rule.fee },
+        ]
+      : [];
+  });
+
+  protected readonly filteredCities = computed(() => {
+    const query = this.normalize(this.citySearch());
+    return this.cityOptions().filter((city) => this.normalize(city).includes(query));
+  });
+
+  protected readonly filteredWards = computed(() => {
+    const query = this.normalize(this.wardSearch());
+    return this.wardOptions().filter((ward) => this.normalize(ward.name).includes(query));
+  });
 
   // Checkout form group
   protected readonly form = new FormGroup<CheckoutForm>({
     address: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     apartment: new FormControl('', { nonNullable: true }),
     city: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    country: new FormControl('VN', { nonNullable: true, validators: [Validators.required] }),
+    ward: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   // Computed totals
@@ -80,8 +129,22 @@ export class CheckoutPage {
     if (this.currentStep() === 'info') {
       return 0; // Displayed as "Calculated next" in view
     }
-    return this.createdOrder()?.shippingFee ?? this.feeForAddress(this.form.getRawValue().city);
+    const selected = this.wardOptions().find((ward) => ward.name === this.selectedWard());
+    return this.createdOrder()?.shippingFee ?? selected?.fee ?? 0;
   });
+
+  ngOnInit(): void {
+    this.checkoutApi.getShippingFees().subscribe({
+      next: (rules) => {
+        this.shippingRules.set(rules);
+        this.shippingRulesLoading.set(false);
+      },
+      error: () => {
+        this.shippingRulesLoading.set(false);
+        this.orderError.set('Không tải được biểu phí vận chuyển. Vui lòng thử lại.');
+      },
+    });
+  }
 
   protected readonly totalAmount = computed(() => {
     if (this.createdOrder()?.totalAmount) {
@@ -93,6 +156,10 @@ export class CheckoutPage {
   // Next step handler
   protected nextStep(): void {
     if (this.currentStep() === 'info') {
+      if (this.cartItems().length === 0) {
+        this.orderError.set('Giỏ hàng đang trống. Vui lòng chọn sản phẩm trước khi thanh toán.');
+        return;
+      }
       if (this.form.invalid) {
         this.form.markAllAsTouched();
         return;
@@ -143,12 +210,65 @@ export class CheckoutPage {
     return control.hasError(error) && (control.dirty || control.touched);
   }
 
+  protected toggleCityDropdown(event: Event): void {
+    event.stopPropagation();
+    this.wardDropdownOpen.set(false);
+    this.cityDropdownOpen.update((open) => !open);
+  }
+
+  protected toggleWardDropdown(event: Event): void {
+    event.stopPropagation();
+    if (!this.selectedCity()) {
+      return;
+    }
+    this.cityDropdownOpen.set(false);
+    this.wardDropdownOpen.update((open) => !open);
+  }
+
+  protected filterCity(value: string): void {
+    this.citySearch.set(value);
+  }
+
+  protected filterWard(value: string): void {
+    this.wardSearch.set(value);
+  }
+
+  protected selectCity(city: string): void {
+    this.selectedCity.set(city);
+    this.selectedWard.set('');
+    this.form.controls.city.setValue(city);
+    this.form.controls.city.markAsTouched();
+    this.form.controls.ward.setValue('');
+    this.citySearch.set('');
+    this.wardSearch.set('');
+    this.cityDropdownOpen.set(false);
+    this.wardDropdownOpen.set(false);
+  }
+
+  protected selectWard(ward: string): void {
+    this.selectedWard.set(ward);
+    this.form.controls.ward.setValue(ward);
+    this.form.controls.ward.markAsTouched();
+    this.wardSearch.set('');
+    this.wardDropdownOpen.set(false);
+  }
+
+  @HostListener('document:click')
+  protected closeDropdowns(): void {
+    this.cityDropdownOpen.set(false);
+    this.wardDropdownOpen.set(false);
+  }
+
   protected setShippingMethod(method: 'standard' | 'express'): void {
     this.selectedShippingMethod.set(method);
   }
 
   // Submit order handler
   protected submitOrder(): void {
+    if (this.cartItems().length === 0) {
+      this.orderError.set('Giỏ hàng đang trống. Vui lòng chọn sản phẩm trước khi thanh toán.');
+      return;
+    }
     if (this.form.invalid) {
       this.currentStep.set('info');
       this.form.markAllAsTouched();
@@ -157,7 +277,7 @@ export class CheckoutPage {
 
     const user = this.auth.currentUser();
     if (!user) {
-      this.orderError.set('Vui lÃ²ng Ä‘Äƒng nháº­p trÆ°á»›c khi Ä‘áº·t hÃ ng.');
+      this.orderError.set('Vui lòng đăng nhập trước khi đặt hàng.');
       this.router.navigate(['/login']);
       return;
     }
@@ -168,8 +288,9 @@ export class CheckoutPage {
     const fullAddress = [
       rawValues.address,
       rawValues.apartment,
+      rawValues.ward,
       rawValues.city,
-      rawValues.country === 'VN' ? 'Việt Nam' : rawValues.country
+      'Việt Nam',
     ].filter(Boolean).join(', ');
 
     const itemsRequest = this.cartItems().map(item => ({
@@ -203,7 +324,7 @@ export class CheckoutPage {
     });
   }
 
-  private startPolling(orderId: number): void {
+  private startPolling(orderId: string | number): void {
     // Poll order status every 2 seconds
     this.pollSubscription = interval(2000).subscribe({
       next: () => {
@@ -214,7 +335,6 @@ export class CheckoutPage {
             // If paymentUrl is available, redirect user to PayOS
             if (order.paymentUrl) {
               this.stopPolling();
-              this.cart.clearCart();
               window.location.href = order.paymentUrl;
             } else if (order.status === 'CANCELLED') {
               this.stopPolling();
@@ -246,10 +366,12 @@ export class CheckoutPage {
     }
   }
 
-  private feeForAddress(address: string): number {
-    const value = address.toUpperCase();
-    return ['HCM', 'HO CHI MINH', 'DA NANG', 'BINH DUONG', 'DONG NAI', 'HUE']
-      .some(region => value.includes(region)) ? 1000 : 2000;
+  private normalize(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   ngOnDestroy(): void {

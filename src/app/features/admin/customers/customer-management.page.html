@@ -1,0 +1,10 @@
+<section class="customer-page">
+  <header class="customer-header"><div><h2>Khách hàng</h2><p>Danh sách tài khoản khách hàng trong hệ thống.</p></div><div class="customer-tools"><input type="search" placeholder="Tìm theo tên, email..." [value]="search()" (input)="setSearch($any($event.target).value)" /><button type="button" (click)="reload()">Làm mới</button></div></header>
+  @if (error()) { <p class="error-banner">{{ error() }}</p> }
+  <div class="glass-panel customer-table">
+    <div class="customer-row customer-head"><span>Khách hàng</span><span>Email</span><span>Số điện thoại</span><span>Trạng thái</span><span>Tác vụ</span></div>
+    @if (loading()) { <p class="empty-state">Đang tải...</p> } @else if (filtered().length === 0) { <p class="empty-state">Không có khách hàng nào.</p> }
+    @for (customer of filtered(); track customer.id) { <div class="customer-row"><div><strong>{{ customer.fullName || customer.username }}</strong><small>{{ customer.username }}</small></div><span>{{ customer.email }}</span><span>{{ customer.phone || '—' }}</span><span class="status" [class.inactive]="customer.status !== 'ACTIVE'">{{ customer.status === 'ACTIVE' ? 'Đang hoạt động' : 'Đã khóa' }}</span><button type="button" [disabled]="isProtected(customer) || deletingId() === customer.id" (click)="deleteCustomer(customer)">{{ deletingId() === customer.id ? 'Đang xóa...' : 'Xóa' }}</button></div> }
+    <footer>Hiển thị {{ filtered().length | number }} khách hàng</footer>
+  </div>
+</section>

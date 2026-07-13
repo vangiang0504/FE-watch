@@ -1,4 +1,5 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { AuthStore } from '../auth/auth.store';
 
 export interface CartItem {
   id: string;
@@ -11,10 +12,31 @@ export interface CartItem {
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly STORAGE_KEY = 'horologue_cart_items_v2';
+  private readonly auth = inject(AuthStore);
+  private activeKey = '';
 
   // Initialize cart items with the default item if localStorage is empty
-  private readonly itemsSignal = signal<CartItem[]>(this.loadCartFromStorage());
+  private readonly itemsSignal = signal<CartItem[]>([]);
+
+  constructor() {
+    effect(() => {
+      const email = this.auth.email();
+      const key = this.storageKey();
+      if (key !== this.activeKey) {
+        if (email) {
+          const guestKey = 'horologue_cart_items_v2:guest';
+          const guestItems = this.loadCartFromStorage(guestKey);
+          const userItems = this.loadCartFromStorage(key);
+          if (guestItems.length && !userItems.length) {
+            localStorage.setItem(key, JSON.stringify(guestItems));
+            localStorage.removeItem(guestKey);
+          }
+        }
+        this.activeKey = key;
+        this.itemsSignal.set(this.loadCartFromStorage(key));
+      }
+    });
+  }
 
   readonly items = computed(() => this.itemsSignal());
 
@@ -72,9 +94,9 @@ export class CartService {
     this.saveCartToStorage([]);
   }
 
-  private loadCartFromStorage(): CartItem[] {
+  private loadCartFromStorage(key: string): CartItem[] {
     try {
-      const data = localStorage.getItem(this.STORAGE_KEY);
+      const data = localStorage.getItem(key);
       if (data) {
         return JSON.parse(data) as CartItem[];
       }
@@ -82,25 +104,19 @@ export class CartService {
       console.error('Failed to parse cart items from storage:', e);
     }
 
-    // Default mock item as per initial requirements
-    return [
-      {
-        id: '00000000-0000-0000-0000-000000000001',
-        name: 'HOROLOGUE',
-        description: 'Bespoke Tourbillon',
-        price: 1000,
-        quantity: 1,
-        image:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuCFx32SJ7wqbdxsoahbIBZeXIeUTCkjPa7EOIfelwF9JOt8hn2h_4qrSK5TUwsnL6llxXIu_jMfq7QjAFbjQOMB1KO8zzYEkHRQDTtm929k6kjfNik1AxvLAHJ8Tli5C7Ov6XiamZNawCErH03WJf13z9j4boHgBkhayBSw2qifrWc-S7xPy0Q3Unncc4C6Sv-5nPy217zAo-nhKlrn5EXo7WvWAdKwGGbiCN8UDJKYhEdD3WKp6yXtMDLXzIODQ8zVLqiuSsTJRbM',
-      },
-    ];
+    return [];
   }
 
   private saveCartToStorage(items: CartItem[]): void {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(this.activeKey, JSON.stringify(items));
     } catch (e) {
       console.error('Failed to save cart items to storage:', e);
     }
+  }
+
+  private storageKey(): string {
+    const email = this.auth.email();
+    return `horologue_cart_items_v2:${email ? email.toLowerCase() : 'guest'}`;
   }
 }

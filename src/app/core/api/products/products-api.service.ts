@@ -45,7 +45,7 @@ export type UpdateProductRequest = CreateProductRequest;
 @Injectable({ providedIn: 'root' })
 export class ProductsApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/admin/products';
+  private readonly baseUrl = '/api/v1/admin/products';
 
   list(): Observable<ApiResponse<ProductSummary[]>> {
     return this.http.get<ApiResponse<ProductSummary[]>>(this.baseUrl);
