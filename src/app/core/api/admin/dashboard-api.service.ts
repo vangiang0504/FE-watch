@@ -34,6 +34,6 @@ export class DashboardApiService {
   private readonly http = inject(HttpClient);
 
   summary(): Observable<ApiResponse<DashboardSummary>> {
-    return this.http.get<ApiResponse<DashboardSummary>>('/api/v1/admin/dashboard');
+    return this.http.get<ApiResponse<DashboardSummary>>('/api/admin/dashboard');
   }
 }

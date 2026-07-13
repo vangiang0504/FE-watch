@@ -40,7 +40,7 @@ export interface CatalogSearchParams {
 @Injectable({ providedIn: 'root' })
 export class ProductCatalogApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/v1/products';
+  private readonly baseUrl = '/api/products';
 
   list(page = 0, size = 20): Observable<ApiResponse<CatalogProduct[]>> {
     const params = new HttpParams().set('page', page).set('size', size);

@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth.store';
 import { CartService } from '../../core/cart/cart.service';
 
@@ -24,7 +24,6 @@ export class HomePage {
   private readonly auth = inject(AuthStore);
   private readonly cart = inject(CartService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly loggingOut = signal(false);
   protected readonly userMenuOpen = signal(false);
@@ -86,22 +85,6 @@ export class HomePage {
       image: 'https://unsplash.com/photos/TtK9yVJx5tA/download?force=true&w=900',
     },
   ];
-
-  constructor() {
-    const paymentStatus = this.route.snapshot.queryParamMap.get('status');
-    if (paymentStatus === 'success') {
-      this.cart.clearCart();
-      this.toastMessage.set('Thanh toán thành công');
-    } else if (paymentStatus === 'cancel') {
-      this.toastMessage.set('Thanh toán đã hủy, giỏ hàng vẫn được giữ lại');
-    } else if (paymentStatus === 'pending') {
-      this.toastMessage.set('Chưa xác nhận được thanh toán, vui lòng kiểm tra lại');
-    }
-    if (paymentStatus) {
-      setTimeout(() => this.toastMessage.set(''), 3000);
-      void this.router.navigateByUrl('/home', { replaceUrl: true });
-    }
-  }
 
   protected toggleUserMenu(): void {
     this.userMenuOpen.update((open) => !open);

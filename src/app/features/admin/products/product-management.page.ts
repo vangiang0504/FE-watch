@@ -36,7 +36,6 @@ interface ProductForm {
   description: FormControl<string>;
   price: FormControl<number>;
   imageUrl: FormControl<string>;
-  quantity: FormControl<number>;
 }
 
 const PAGE_SIZE = 3;
@@ -95,7 +94,6 @@ export class ProductManagementPage {
     description: new FormControl('', { nonNullable: true }),
     price: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
     imageUrl: new FormControl('', { nonNullable: true }),
-    quantity: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
   });
 
   constructor() {
@@ -147,7 +145,7 @@ export class ProductManagementPage {
     this.formMode.set('create');
     this.editingProductId.set(null);
     this.formError.set('');
-    this.form.reset({ name: '', brand: '', category: '', description: '', price: 0, imageUrl: '', quantity: 0 });
+    this.form.reset({ name: '', brand: '', category: '', description: '', price: 0, imageUrl: '' });
   }
 
   protected openEditForm(product: ProductSummary): void {
@@ -161,7 +159,6 @@ export class ProductManagementPage {
       description: '',
       price: product.price,
       imageUrl: product.imageUrl,
-      quantity: this.stockOf(product.productId) ?? 0,
     });
   }
 
@@ -178,34 +175,19 @@ export class ProductManagementPage {
 
     const mode = this.formMode();
     const value = this.form.getRawValue();
-    const { quantity, ...productRequest } = value;
     this.formSubmitting.set(true);
     this.formError.set('');
 
     const request$ =
       mode === 'edit' && this.editingProductId()
-        ? this.api.update(this.editingProductId()!, productRequest)
-        : this.api.create(productRequest);
+        ? this.api.update(this.editingProductId()!, value)
+        : this.api.create(value);
 
     request$.subscribe({
-      next: (response) => {
-        const productId = mode === 'edit' ? this.editingProductId() : response.data;
-        if (!productId) {
-          this.formSubmitting.set(false);
-          this.formError.set('Không xác định được sản phẩm để cập nhật tồn kho.');
-          return;
-        }
-        this.inventoryApi.adjust(productId, quantity).subscribe({
-          next: () => {
-            this.formSubmitting.set(false);
-            this.closeForm();
-            this.reload();
-          },
-          error: () => {
-            this.formSubmitting.set(false);
-            this.formError.set('Lưu sản phẩm thành công nhưng không cập nhật được số lượng tồn kho.');
-          },
-        });
+      next: () => {
+        this.formSubmitting.set(false);
+        this.closeForm();
+        this.reload();
       },
       error: (err) => {
         this.formSubmitting.set(false);

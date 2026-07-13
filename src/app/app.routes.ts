@@ -25,12 +25,6 @@ export const routes: Routes = [
       import('./features/home/home.page').then((m) => m.HomePage),
   },
   {
-    path: 'profile',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/profile/profile.page').then((m) => m.ProfilePage),
-  },
-  {
     path: 'products',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -63,13 +57,13 @@ export const routes: Routes = [
         path: 'customers',
         data: { title: 'Khách hàng' },
         loadComponent: () =>
-          import('./features/admin/customers/customer-management.page').then((m) => m.CustomerManagementPage),
+          import('./features/admin/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
       },
       {
         path: 'logistics',
         data: { title: 'Vận chuyển' },
         loadComponent: () =>
-          import('./features/admin/logistics/logistics-management.page').then((m) => m.LogisticsManagementPage),
+          import('./features/admin/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
       },
       {
         path: 'revenue',

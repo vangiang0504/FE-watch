@@ -152,14 +152,6 @@
         <input type="text" formControlName="imageUrl" />
       </label>
 
-      <label>
-        Số lượng tồn kho
-        <input type="number" min="0" step="1" formControlName="quantity" />
-        @if (hasError('quantity', 'required') || hasError('quantity', 'min')) {
-          <span class="field-error">Số lượng phải lớn hơn hoặc bằng 0.</span>
-        }
-      </label>
-
       @if (formError()) {
         <p class="field-error">{{ formError() }}</p>
       }

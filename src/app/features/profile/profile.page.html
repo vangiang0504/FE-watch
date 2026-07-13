@@ -163,22 +163,6 @@
                   <div class="order-actions">
                     <a [href]="order.paymentUrl" class="pay-now-btn">Thanh toán ngay</a>
                   </div>
-                } @else if (order.status === 'SHIPPING_CREATED') {
-                  <div class="order-actions">
-                    <button
-                      type="button"
-                      class="pay-now-btn"
-                      [disabled]="!canConfirmReceived(order) || !!confirmingOrderId()"
-                      (click)="confirmReceived(order)">
-                      @if (confirmingOrderId() === '' + order.orderId) {
-                        Đang xác nhận...
-                      } @else if (canConfirmReceived(order)) {
-                        Đã nhận hàng
-                      } @else {
-                        Xác nhận sau {{ confirmRemainingSeconds(order) }} giây
-                      }
-                    </button>
-                  </div>
                 }
               </div>
             }

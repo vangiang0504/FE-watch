@@ -76,17 +76,6 @@ export class ProductListPage {
 
   protected readonly skeletonPlaceholders = Array.from({ length: SKELETON_COUNT });
 
-  protected categoryLabel(category: string): string {
-    const labels: Record<string, string> = {
-      Sport: 'Thể thao',
-      Luxury: 'Cao cấp',
-      Dress: 'Thanh lịch',
-      Diver: 'Đồng hồ lặn',
-      Chronograph: 'Bấm giờ',
-    };
-    return labels[category] ?? category;
-  }
-
   constructor() {
     this.reload();
   }

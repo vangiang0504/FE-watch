@@ -14,19 +14,15 @@ export interface InventoryItem {
 }
 
 /**
- * Calls Admin Service's proxy endpoint so Admin never
+ * Calls Admin Service's proxy endpoint (/api/admin/inventory) so Admin never
  * bypasses the service that owns the data - mirrors ProductsApiService.
  */
 @Injectable({ providedIn: 'root' })
 export class InventoryAdminApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/v1/admin/inventory';
+  private readonly baseUrl = '/api/admin/inventory';
 
   list(): Observable<ApiResponse<InventoryItem[]>> {
     return this.http.get<ApiResponse<InventoryItem[]>>(this.baseUrl);
-  }
-
-  adjust(productId: string, availableQuantity: number): Observable<ApiResponse<string>> {
-    return this.http.put<ApiResponse<string>>(`${this.baseUrl}/${productId}`, { availableQuantity });
   }
 }

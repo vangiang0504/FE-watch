@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { UserApiService, UserProfile } from '../../core/api/user/user-api.service';
-import { CheckoutApiService, OrderResponse } from '../../core/api/checkout/checkout-api.service';
+import { CheckoutApiService } from '../../core/api/checkout/checkout-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
 
 interface ProfileForm {
@@ -20,7 +20,7 @@ interface ProfileForm {
   styleUrl: './profile.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfilePage implements OnInit, OnDestroy {
+export class ProfilePage implements OnInit {
   private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly userApi = inject(UserApiService);
@@ -35,12 +35,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   protected readonly profile = signal<UserProfile | null>(null);
 
   protected readonly activeTab = signal<'profile' | 'orders' | 'collection' | 'settings'>('profile');
-  protected readonly orders = signal<OrderResponse[]>([]);
+  protected readonly orders = signal<any[]>([]);
   protected readonly loadingOrders = signal(false);
   protected readonly ordersError = signal('');
-  protected readonly confirmingOrderId = signal('');
-  protected readonly now = signal(Date.now());
-  private readonly clock = window.setInterval(() => this.now.set(Date.now()), 1000);
 
   protected setActiveTab(tab: 'profile' | 'orders' | 'collection' | 'settings'): void {
     this.activeTab.set(tab);
@@ -100,41 +97,6 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProfile();
-  }
-
-  ngOnDestroy(): void {
-    window.clearInterval(this.clock);
-  }
-
-  protected canConfirmReceived(order: OrderResponse): boolean {
-    return order.status === 'SHIPPING_CREATED'
-      && !!order.confirmAvailableAt
-      && Date.parse(order.confirmAvailableAt) <= this.now();
-  }
-
-  protected confirmRemainingSeconds(order: OrderResponse): number {
-    return order.confirmAvailableAt
-      ? Math.max(0, Math.ceil((Date.parse(order.confirmAvailableAt) - this.now()) / 1000))
-      : 0;
-  }
-
-  protected confirmReceived(order: OrderResponse): void {
-    if (!this.canConfirmReceived(order) || this.confirmingOrderId()) {
-      return;
-    }
-    this.confirmingOrderId.set(String(order.orderId));
-    this.ordersError.set('');
-    this.checkoutApi.confirmReceived(order.orderId).subscribe({
-      next: () => {
-        this.orders.update((orders) => orders.map((item) =>
-          String(item.orderId) === String(order.orderId) ? { ...item, status: 'COMPLETED' } : item));
-        this.confirmingOrderId.set('');
-      },
-      error: (error) => {
-        this.ordersError.set(error?.error?.message || 'Không thể xác nhận đã nhận hàng.');
-        this.confirmingOrderId.set('');
-      },
-    });
   }
 
   protected update(): void {

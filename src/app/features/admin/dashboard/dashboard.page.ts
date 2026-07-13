@@ -50,12 +50,6 @@ export class DashboardPage {
     () => new Map(this.products().map((product) => [product.productId, product])),
   );
 
-  protected readonly listFilter = signal<'all' | 'low-stock'>('low-stock');
-
-  protected readonly totalQuantity = computed(() =>
-    this.inventoryItems().reduce((sum, item) => sum + item.availableQuantity, 0),
-  );
-
   protected readonly outOfStockCount = computed(
     () => this.inventoryItems().filter((item) => item.availableQuantity <= 0).length,
   );
@@ -68,16 +62,11 @@ export class DashboardPage {
     }, 0);
   });
 
-  protected readonly productRows = computed<LowStockRow[]>(() => {
+  protected readonly lowStockRows = computed<LowStockRow[]>(() => {
     const byId = this.productsById();
-    const filter = this.listFilter();
 
-    let items = this.inventoryItems();
-    if (filter === 'low-stock') {
-      items = items.filter((item) => item.availableQuantity <= LOW_STOCK_THRESHOLD);
-    }
-
-    return items
+    return this.inventoryItems()
+      .filter((item) => item.availableQuantity <= LOW_STOCK_THRESHOLD)
       .map((item) => {
         const product = byId.get(item.productId);
         return {
@@ -88,7 +77,8 @@ export class DashboardPage {
           availableQuantity: item.availableQuantity,
         };
       })
-      .sort((a, b) => a.availableQuantity - b.availableQuantity);
+      .sort((a, b) => a.availableQuantity - b.availableQuantity)
+      .slice(0, 6);
   });
 
   protected readonly brandBreakdown = computed<BrandBreakdownRow[]>(() => {
